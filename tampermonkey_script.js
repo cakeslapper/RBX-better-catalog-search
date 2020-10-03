@@ -9,7 +9,6 @@
 // ==/UserScript==
 
 /* global pixelmatch */
-
 const perfectThreshold = .5;
 
 let category = "&Category=3&Subcategory=12"
@@ -56,7 +55,9 @@ function appendImg(img) {
 }
 
 function bothEqualImgData(a, b) {
-  return (pixelmatch(a.imageData, b.imageData, null, 420, 420, {threshold: perfectThreshold}) == 0);
+    return (pixelmatch(a.imageData, b.imageData, null, 420, 420, {
+        threshold: perfectThreshold
+    }) == 0);
 }
 
 function addIfUnique(eachClothing) {
@@ -90,31 +91,29 @@ async function addEachClothing(catalogIDs) {
         fetch(catalogLink)
             .then((response) => response.text())
             .then((text) => {
-            let thumbnailLink = getLink(text);
-            addToUniqueClothes(thumbnailLink, catalogLink);
-        });
+                let thumbnailLink = getLink(text);
+                addToUniqueClothes(thumbnailLink, catalogLink);
+            });
     }
 }
 
 async function main() {
-		fetch(usedApiUrl)
-			.then((apiResponse) => apiResponse.json())
-			.then((apiJSON) => {
-                nextPageCursor = apiJSON.nextPageCursor;
-				usedApiUrl = baseApiUrl + nextPageCursor;
-                let catalogIDs = apiJSON.data.map(clothing => clothing.id);
-                addEachClothing(catalogIDs);
-				console.log("finished a page");
+    fetch(usedApiUrl)
+        .then((apiResponse) => apiResponse.json())
+        .then((apiJSON) => {
+            nextPageCursor = apiJSON.nextPageCursor;
+            usedApiUrl = baseApiUrl + nextPageCursor;
+            let catalogIDs = apiJSON.data.map(clothing => clothing.id);
+            addEachClothing(catalogIDs);
+            console.log("finished a page");
 
-				if (nextPageCursor != null) {
-					main();
-				} else {
-					console.log("unique clothes: ");
-                    console.log(uniqueClothes);
-				}
-			});
+            if (nextPageCursor != null) {
+                main();
+            } else {
+                console.log("unique clothes: ");
+                console.log(uniqueClothes);
+            }
+        });
 }
 
 main();
-
-
