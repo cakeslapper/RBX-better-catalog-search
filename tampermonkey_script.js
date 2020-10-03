@@ -4,7 +4,6 @@
 // @description  Remove the duplicate shirts and pants in the roblox catalog
 // @author       Danielle
 // @match        https://api.roblox.com/*
-// @match        https://www.roblox.com/home
 // @require      https://code.jquery.com/jquery-3.5.1.js
 // @require      https://bundle.run/pixelmatch
 // ==/UserScript==
