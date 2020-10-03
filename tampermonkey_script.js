@@ -81,7 +81,7 @@ function addToUniqueClothes(thumbnailLink, catalogLink) {
     }
 }
 
-async function forEachClothing(catalogIDs) {
+async function addEachClothing(catalogIDs) {
     let catalogIDlength = catalogIDs.length;
     for (let i = 0; i < catalogIDlength; ++i) {
         let catalogID = catalogIDs[i];
@@ -91,7 +91,6 @@ async function forEachClothing(catalogIDs) {
             .then((response) => response.text())
             .then((text) => {
             let thumbnailLink = getLink(text);
-
             addToUniqueClothes(thumbnailLink, catalogLink);
         });
     }
@@ -104,7 +103,7 @@ async function main() {
                 nextPageCursor = apiJSON.nextPageCursor;
 				usedApiUrl = baseApiUrl + nextPageCursor;
                 let catalogIDs = apiJSON.data.map(clothing => clothing.id);
-                forEachClothing(catalogIDs);
+                addEachClothing(catalogIDs);
 				console.log("finished a page");
 
 				if (nextPageCursor != null) {
