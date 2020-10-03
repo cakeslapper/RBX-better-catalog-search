@@ -58,22 +58,24 @@ function bothEqualImgData(a, b) {
   return (pixelmatch(a.imageData, b.imageData, null, 420, 420, {threshold: perfectThreshold}) == 0);
 }
 
-function addToArrayAndDoc(thumbnailLink, catalogLink) {
+function addIfUnique(eachClothing) {
+    let duplicate = uniqueClothes.some((uniqueClothing) => bothEqualImgData(eachClothing, uniqueClothing));
+    if (duplicate == false) {
+        uniqueClothes.push(eachClothing);
+    }
+}
+
+function addToUniqueClothes(thumbnailLink, catalogLink) {
     if (!thumbnailLink.includes("html")) {
         let img = createImg(thumbnailLink);
         img.onload = function() {
             let data = getImgData(img);
 
-            let eachClothing = { // create object
+            let eachClothing = {
                 "catalogLink": catalogLink,
                 "imageData": data
             }
-
-            let duplicate = uniqueClothes.some((uniqueClothing) => bothEqualImgData(eachClothing, uniqueClothing));
-            if (duplicate == false) {
-                uniqueClothes.push(eachClothing);
-                appendImg(img);
-            }
+            addIfUnique(eachClothing);
         }
     }
 }
@@ -89,7 +91,7 @@ async function forEachClothing(catalogIDs) {
             .then((text) => {
             let thumbnailLink = getLink(text);
 
-            addToArrayAndDoc(thumbnailLink, catalogLink);
+            addToUniqueClothes(thumbnailLink, catalogLink);
         });
     }
 }
