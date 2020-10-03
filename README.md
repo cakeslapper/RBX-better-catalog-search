@@ -6,5 +6,6 @@ My experiment in creating a better search function for roblox clothes, which is 
 - [ ] Does nothing against inaccurately labeled clothes
 
 ### Upcoming features:
+- [ ] Optimizations for speed
 - [ ] More accurate results
 - [ ] Code hosted on its own site
