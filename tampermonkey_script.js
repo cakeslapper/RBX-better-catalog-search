@@ -11,7 +11,7 @@
 
 /* global pixelmatch */
 
-const perfectThreshold = .4;
+const perfectThreshold = .5;
 
 let nextPageCursor = "";
 let category = "&Category=3&Subcategory=12"
@@ -31,11 +31,19 @@ function getLink(text) {
     return link;
 }
 
-function createImg(link) {
+function createImg(thumbnailLink, catalogLink) {
     let img = new Image();
-    img.src = link;
+    img.src = thumbnailLink;
     img.crossOrigin = "Anonymous";
+    img.alt = catalogLink;
     return img;
+}
+
+function appendImg(img) {
+    img.style.maxWidth = '150px';
+    img.style.maxHeight = '150px';
+    let place = document.getElementById("Assets");
+    place.appendChild(img);
 }
 
 function getImgData(img) {
@@ -48,60 +56,68 @@ function getImgData(img) {
     return data;
 }
 
+function addToArrayAndDoc(thumbnailLink, catalogLink) {
+    if (!thumbnailLink.includes("html")) {
+        let img = createImg(thumbnailLink, catalogLink);
+        img.onload = function() {
+            let data = getImgData(img);
+
+            let eachClothing = { // create object
+                "catalogLink": catalogLink,
+                "imageData": data
+            }
+
+            let duplicate = uniqueClothes.some((uniqueClothing) => bothEqual(eachClothing, uniqueClothing));
+            if (duplicate == false) {
+                uniqueClothes.push(eachClothing);
+                appendImg(img);
+            }
+        }
+    }
+}
+
+async function forEachClothing(catalogIDs) {
+    let catalogIDlength = catalogIDs.length;
+    for (let i = 0; i < catalogIDlength; ++i) {
+        let catalogID = catalogIDs[i];
+
+        let catalogLink = "https://www.roblox.com/catalog/" + catalogID;
+        fetch(catalogLink)
+            .then((response) => response.text())
+            .then((text) => {
+            let thumbnailLink = getLink(text);
+
+            addToArrayAndDoc(thumbnailLink, catalogLink);
+        });
+    }
+}
+
 function bothEqual(a, b) {
   return (pixelmatch(a.imageData, b.imageData, null, 420, 420, {threshold: perfectThreshold}) == 0);
 }
 
-async function getUniqueClothes() {
+async function main() {
 		fetch(usedApiUrl)
 			.then((apiResponse) => apiResponse.json())
 			.then((apiJSON) => {
-				let apiData = apiJSON.data;
-
-				let catalogIDs = apiData.map(clothing => clothing.id);
-
-				// individual catalog item, gets thumbnail links
-				let catalogIDlength = catalogIDs.length;
-				for (let i = 0; i < catalogIDlength; ++i) {
-					let catalogID = catalogIDs[i];
-
-					let url = "https://www.roblox.com/catalog/" + catalogID;
-					fetch(url)
-						.then((response) => response.text())
-						.then((text) => {
-							let link = getLink(text);
-
-							if (!link.includes("html")) {
-								let img = createImg(link);
-								img.onload = function() {
-									let data = getImgData(img);
-
-									let eachClothing = {
-										"thumbnailLink": link,
-										"imageData": data
-									}
-
-                                    let duplicate = uniqueClothes.some((uniqueClothing) => bothEqual(eachClothing, uniqueClothing));
-                                    if (duplicate == false) {
-                                        uniqueClothes.push(eachClothing);
-                                    }
-								}
-							}
-						});
-				}
-				nextPageCursor = apiJSON.nextPageCursor;
+                nextPageCursor = apiJSON.nextPageCursor;
 				usedApiUrl = baseApiUrl + nextPageCursor;
+
+                let catalogIDs = apiJSON.data.map(clothing => clothing.id);
 
 				console.log("finished a page");
 
 				if (nextPageCursor != null) {
-					getUniqueClothes();
+					main();
 				} else {
 					console.log("unique clothes: ");
                     console.log(uniqueClothes);
 				}
+
+				forEachClothing(catalogIDs);
 			});
 }
-getUniqueClothes();
+
+main();
 
 
