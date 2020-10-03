@@ -31,19 +31,11 @@ function getLink(text) {
     return link;
 }
 
-function createImg(thumbnailLink, catalogLink) {
+function createImg(thumbnailLink) {
     let img = new Image();
     img.src = thumbnailLink;
     img.crossOrigin = "Anonymous";
-    img.alt = catalogLink;
     return img;
-}
-
-function appendImg(img) {
-    img.style.maxWidth = '150px';
-    img.style.maxHeight = '150px';
-    let place = document.getElementById("Assets");
-    place.appendChild(img);
 }
 
 function getImgData(img) {
@@ -56,9 +48,20 @@ function getImgData(img) {
     return data;
 }
 
+function appendImg(img) {
+    img.style.maxWidth = '150px';
+    img.style.maxHeight = '150px';
+    let place = document.getElementById("Assets");
+    place.appendChild(img);
+}
+
+function bothEqualImgData(a, b) {
+  return (pixelmatch(a.imageData, b.imageData, null, 420, 420, {threshold: perfectThreshold}) == 0);
+}
+
 function addToArrayAndDoc(thumbnailLink, catalogLink) {
     if (!thumbnailLink.includes("html")) {
-        let img = createImg(thumbnailLink, catalogLink);
+        let img = createImg(thumbnailLink);
         img.onload = function() {
             let data = getImgData(img);
 
@@ -67,7 +70,7 @@ function addToArrayAndDoc(thumbnailLink, catalogLink) {
                 "imageData": data
             }
 
-            let duplicate = uniqueClothes.some((uniqueClothing) => bothEqual(eachClothing, uniqueClothing));
+            let duplicate = uniqueClothes.some((uniqueClothing) => bothEqualImgData(eachClothing, uniqueClothing));
             if (duplicate == false) {
                 uniqueClothes.push(eachClothing);
                 appendImg(img);
@@ -92,19 +95,14 @@ async function forEachClothing(catalogIDs) {
     }
 }
 
-function bothEqual(a, b) {
-  return (pixelmatch(a.imageData, b.imageData, null, 420, 420, {threshold: perfectThreshold}) == 0);
-}
-
 async function main() {
 		fetch(usedApiUrl)
 			.then((apiResponse) => apiResponse.json())
 			.then((apiJSON) => {
                 nextPageCursor = apiJSON.nextPageCursor;
 				usedApiUrl = baseApiUrl + nextPageCursor;
-
                 let catalogIDs = apiJSON.data.map(clothing => clothing.id);
-
+                forEachClothing(catalogIDs);
 				console.log("finished a page");
 
 				if (nextPageCursor != null) {
@@ -113,8 +111,6 @@ async function main() {
 					console.log("unique clothes: ");
                     console.log(uniqueClothes);
 				}
-
-				forEachClothing(catalogIDs);
 			});
 }
 
