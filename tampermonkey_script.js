@@ -12,12 +12,13 @@
 
 const perfectThreshold = .5;
 
-let nextPageCursor = "";
 let category = "&Category=3&Subcategory=12"
 let keywordSearch = "20015";
+
 let clothes = [];
 let uniqueClothes = [];
 
+let nextPageCursor = "";
 let baseApiUrl = "https://catalog.roblox.com/v1/search/items/details?Keyword=" + keywordSearch + category + "&cursor=";
 let usedApiUrl = baseApiUrl + nextPageCursor;
 
