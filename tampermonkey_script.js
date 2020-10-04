@@ -14,7 +14,6 @@ const perfectThreshold = .5;
 let category = "&Category=3&Subcategory=12"
 let keywordSearch = "20015";
 
-let clothes = [];
 let uniqueClothes = [];
 
 let nextPageCursor = "";
